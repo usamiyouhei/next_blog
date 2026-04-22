@@ -46,3 +46,32 @@ export async function signup(
   });
   redirect("/");
 }
+
+export async function signin(
+  _prevState: { error: string } | null,
+  formData: FormData,
+): Promise<{ error: string }> {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  if (!email || !password) {
+    return { error: "メールアドレスとパスワードを入力してください" };
+  }
+
+  const ds = await getDataSource();
+  const userRepo = ds.getRepository(User);
+  const user = await userRepo.findOne({ where: { email } });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return { error: "メールアドレスとパスワードを入力してください" };
+  }
+
+  const token = generateToken({ id: user.id, name: user.name });
+  const cookieStore = await cookies();
+  cookieStore.set("token", token, {
+    httpOnly: true,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+  redirect("/");
+}
