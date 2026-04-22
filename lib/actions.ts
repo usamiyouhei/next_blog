@@ -2,6 +2,10 @@
 
 import { User } from "@/entities/user";
 import { getDataSource } from "./db";
+import bcrypt from "bcrypt";
+import { generateToken } from "./jwt";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function signup(
   _prevState: { error: string } | null,
@@ -14,7 +18,7 @@ export async function signup(
   if (!name || !email || !password) {
     return { error: "すべての項目を入力してください" };
   }
-  if (password.length > 6) {
+  if (password.length < 6) {
     return { error: "パスワードは６文字以上で入力してください" };
   }
 
@@ -27,4 +31,18 @@ export async function signup(
       error: "このメールアドレスで登録しているユーザーがすでに存在します。",
     };
   }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = userRepo.create({ name, email, password: hashedPassword });
+  await userRepo.save(user);
+  console.log(user);
+
+  const token = generateToken({ id: user.id, name: user.name });
+  const cookiesStore = await cookies();
+  cookiesStore.set("token", token, {
+    httpOnly: true,
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
+  redirect("/");
 }
