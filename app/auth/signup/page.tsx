@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import "./index.css";
+import { useActionState } from "react";
+import { signup } from "@/lib/actions";
 
 export default function SignupPage() {
+  const [state, formAction, isPending] = useActionState(signup, null);
   return (
     <div className="page">
       <Link href="/" className="logo">
@@ -11,13 +16,8 @@ export default function SignupPage() {
       <div className="form-card">
         <h1 className="form-title">アカウント作成</h1>
         <p className="form-subtitle">NextBlog へようこそ</p>
-
-        {/* エラーメッセージ表示（コメントインで確認可能） */}
-        {/*
-        <div className="error-message">このメールアドレスまたはユーザー名は既に使用されています</div>
-        */}
-
-        <form>
+        {state?.error && <div className="error-message">{state.error}</div>}
+        <form action={formAction}>
           <div className="input-group">
             <label className="label" htmlFor="name">
               ユーザー名
@@ -62,18 +62,11 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            className="submit-button"
+            className={`submit-button ${isPending ? "submit-button-loading" : ""}`}
+            disabled={isPending}
           >
             アカウントを作成
           </button>
-          {/* ローディング中の表示（コメントインで確認可能） */}
-          {/*
-          <button
-            type="submit"
-            className="submit-button submit-button-loading"
-          >
-          </button>
-          */}
         </form>
 
         <p className="form-footer">
