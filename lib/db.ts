@@ -1,3 +1,4 @@
+import { Post } from "@/entities/post";
 import { User } from "@/entities/user";
 import path from "path";
 import { DataSource } from "typeorm";
@@ -15,7 +16,7 @@ export const AppDataSource =
     database: DB_PATH,
     synchronize: true,
     logging: false,
-    entities: [User],
+    entities: [User, Post],
   });
 
 if (process.env.NODE_ENV !== "production") {
