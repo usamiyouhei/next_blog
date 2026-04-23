@@ -65,6 +65,7 @@ export async function signin(
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return { error: "メールアドレスとパスワードを入力してください" };
   }
+  console.log(user);
 
   const token = generateToken({ id: user.id, name: user.name });
   const cookieStore = await cookies();
