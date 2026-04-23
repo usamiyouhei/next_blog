@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import "./index.css";
+import { useActionState } from "react";
+import { signin } from "@/lib/actions";
 
 export default function SigninPage() {
+  const [state, formAction, isPending] = useActionState(signin, null);
+
   return (
     <div className="page">
       <Link href="/" className="logo">
@@ -12,12 +18,9 @@ export default function SigninPage() {
         <h1 className="form-title">Welcome back</h1>
         <p className="form-subtitle">サインインしてください</p>
 
-        {/* エラーメッセージ表示（コメントインで確認可能） */}
-        {/*
-        <div className="error-message">メールアドレスまたはパスワードが正しくありません</div>
-        */}
+        {state?.error && <div className="error-message">{state.error}</div>}
 
-        <form>
+        <form action={formAction}>
           <div className="input-group">
             <label className="label" htmlFor="email">
               メールアドレス
@@ -48,18 +51,10 @@ export default function SigninPage() {
 
           <button
             type="submit"
-            className="submit-button"
+            className={`submit-button ${isPending ? "submit-button-loading" : ""}`}
           >
-            Sign in
+            ログイン
           </button>
-          {/* ローディング中の表示（コメントインで確認可能） */}
-          {/*
-          <button
-            type="submit"
-            className="submit-button submit-button-loading"
-          >
-          </button>
-          */}
         </form>
 
         <p className="form-footer">
