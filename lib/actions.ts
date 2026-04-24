@@ -100,6 +100,7 @@ export async function createPost(
   const postRepo = ds.getRepository(Post);
   const post = postRepo.create({ title, content, published, userId: user.id });
   await postRepo.save(post);
+  console.log(post);
 
   redirect("/dashboard");
 }

@@ -1,17 +1,23 @@
+"use client";
+import { useActionState } from "react";
 import "./index.css";
 
-export default function PostForm() {
+interface Props {
+  action: (
+    state: { error: string } | null,
+    formData: FormData,
+  ) => Promise<{ error: string } | null>;
+}
+
+export default function PostForm({ action }: Props) {
+  const [state, formAction, isPending] = useActionState(action, null);
   return (
-    <form className="post-form">
-      {/* エラーメッセージ表示（コメントインで確認可能） */}
-      {/*
-      <p className="form-error">タイトルと本文を入力してください</p>
-      */}
+    <form className="post-form" action={formAction}>
+      {state?.error && <p className="form-error">{state.error}</p>}
 
       <input
         name="title"
         type="text"
-        defaultValue="Reactの最新機能を試してみた"
         placeholder="記事のタイトルを入力..."
         className="title-input"
         required
@@ -22,7 +28,6 @@ export default function PostForm() {
           <div className="panel-label">Markdown</div>
           <textarea
             name="content"
-            defaultValue="## はじめに&#10;&#10;ここに本文を書きます。"
             placeholder="Markdownで本文を書いてください..."
             className="content-textarea"
             required
@@ -46,6 +51,7 @@ export default function PostForm() {
           value="false"
           type="submit"
           className="btn-draft"
+          disabled={isPending}
         >
           下書き保存
         </button>
@@ -54,6 +60,7 @@ export default function PostForm() {
           value="true"
           type="submit"
           className="btn-publish"
+          disabled={isPending}
         >
           公開する
         </button>
