@@ -3,9 +3,10 @@
 import { User } from "@/entities/user";
 import { getDataSource } from "./db";
 import bcrypt from "bcrypt";
-import { generateToken } from "./jwt";
+import { generateToken, verifyToken } from "./jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Post } from "@/entities/post";
 
 export async function signup(
   _prevState: { error: string } | null,
@@ -75,4 +76,30 @@ export async function signin(
     maxAge: 60 * 60 * 24 * 7,
   });
   redirect("/");
+}
+
+export async function createPost(
+  _prevState: { error: string } | null,
+  formData: FormData,
+): Promise<{ error: string } | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+
+  if (!user) redirect("/auth/signin");
+
+  const title = (formData.get("title") as string)?.trim();
+  const content = (formData.get("content") as string)?.trim();
+  const published = formData.get("published") === "true";
+
+  if (!title || !content) {
+    return { error: "タイトルと本文を入力してください" };
+  }
+
+  const ds = await getDataSource();
+  const postRepo = ds.getRepository(Post);
+  const post = postRepo.create({ title, content, published, userId: user.id });
+  await postRepo.save(post);
+
+  redirect("/dashboard");
 }
