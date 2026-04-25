@@ -1,7 +1,13 @@
 import Link from "next/link";
 import "./index.css";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
 
-export default function Header() {
+export default async function Header() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+
   return (
     <header className="header">
       <Link href="/" className="logo">
@@ -9,34 +15,33 @@ export default function Header() {
       </Link>
 
       <nav className="nav">
-        {/* ログイン済みの場合はこちらをコメントイン、下の未ログイン部分をコメントアウト */}
-        {/*
-        <>
-          <Link href="/dashboard" className="navLink">
-            Dashboard
-          </Link>
-          <div className="userMenu">
-            <div className="avatar">T</div>
-            <div className="dropdown">
-              <span className="dropdownName">testuser</span>
-              <form>
-                <button type="submit" className="signOutButton">
-                  Sign out
-                </button>
-              </form>
+        {user ? (
+          <>
+            <Link href="/dashboard" className="navLink">
+              Dashboard
+            </Link>
+            <div className="userMenu">
+              <div className="avatar">{user.name.charAt(0).toUpperCase()}</div>
+              <div className="dropdown">
+                <span className="dropdownName">{user.name}</span>
+                <form>
+                  <button type="submit" className="signOutButton">
+                    Sign out
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-        </>
-        */}
-        {/* 未ログインの場合はこちらをコメントイン（デフォルト） */}
-        <>
-          <Link href="/auth/signin" className="navLink">
-            Sign in
-          </Link>
-          <Link href="/auth/signup" className="signInButton">
-            Sign up
-          </Link>
-        </>
+          </>
+        ) : (
+          <>
+            <Link href="/auth/signin" className="navLink">
+              Sign in
+            </Link>
+            <Link href="/auth/signup" className="signInButton">
+              Sign up
+            </Link>
+          </>
+        )}
       </nav>
     </header>
   );
