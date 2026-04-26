@@ -8,7 +8,9 @@ import { verifyToken } from "@/lib/jwt";
 export default async function NewPostPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  console.log("token:", token);
   const user = verifyToken(token);
+  console.log("user:", user);
   if (!user) redirect("/auth/signin");
 
   return (
