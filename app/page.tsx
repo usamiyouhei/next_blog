@@ -1,8 +1,12 @@
 import PostCard from "@/components/PostCard";
 import Pagination from "@/components/Pagination";
 import "./page.css";
+import { getPosts } from "@/lib/queries";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { posts } = await getPosts();
+  console.log(posts);
+
   return (
     <main>
       <section className="hero">
