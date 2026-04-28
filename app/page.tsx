@@ -20,15 +20,15 @@ export default async function HomePage() {
         </p>
       </section>
 
-      {/* 記事がない場合はこちらをコメントイン、下のグリッドをコメントアウト */}
-      {/*
-      <p className="empty">まだ記事がありません</p>
-      */}
-      <div className="grid">
-        <PostCard />
-        <PostCard />
-        <PostCard />
-      </div>
+      {posts.length === 0 ? (
+        <p className="empty">まだ記事がありません</p>
+      ) : (
+        <div className="grid">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      )}
 
       <Pagination />
     </main>
