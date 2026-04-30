@@ -13,5 +13,5 @@ export async function getPosts(options: { page?: number; limit?: number }) {
     take: limit,
   });
 
-  return { posts, total, page, totalPage: Math.ceil(total / limit) };
+  return { posts, total, page, totalPages: Math.ceil(total / limit) };
 }
