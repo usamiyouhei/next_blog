@@ -3,8 +3,14 @@ import Pagination from "@/components/Pagination";
 import "./page.css";
 import { getPosts } from "@/lib/queries";
 
-export default async function HomePage() {
-  const { posts } = await getPosts();
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function HomePage({ searchParams }: Props) {
+  const { page: PageStr } = await searchParams;
+  const page = parseInt(PageStr || "1");
+  const { posts, totalPages } = await getPosts({ page });
   console.log(posts);
 
   return (
@@ -29,8 +35,9 @@ export default async function HomePage() {
           ))}
         </div>
       )}
-
-      <Pagination />
+      {totalPages > 1 && (
+        <Pagination currentPage={page} totalPages={totalPages} />
+      )}
     </main>
   );
 }
