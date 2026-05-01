@@ -10,7 +10,7 @@ export default function PostCard({ post }: Props) {
   const excerpt =
     post.content.slice(0, 100) + (post.content.length > 100 ? "..." : "");
   return (
-    <Link href="" className="card">
+    <Link href={`/posts/${post.id}`} className="card">
       <div className="thumbnail">
         <span className="tag">Article</span>
       </div>

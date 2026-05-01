@@ -1,7 +1,17 @@
 import Link from "next/link";
 import "./page.css";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
+import { redirect } from "next/navigation";
+import { getPosts } from "@/lib/queries";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+  if (!user) redirect("/auth/signin");
+
+  const { posts } = await getPosts({ isOwn: true });
   return (
     <div className="page">
       <div className="dashboard-header">
@@ -11,74 +21,50 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* 記事がない場合はこちらをコメントイン、下のリストをコメントアウト */}
-      {/*
-      <p className="empty">まだ記事がありません。最初の記事を書いてみましょう。</p>
-      */}
-      <div className="article-list">
-        <div className="article-row">
-          <span className="status-badge status-published">
-            <span className="status-dot status-dot-published" />
-            公開
-          </span>
-          <Link href="" className="article-title">
-            Reactの最新機能を試してみた
-          </Link>
-          <span className="article-date">2025年3月19日</span>
-          <div className="article-actions">
-            <Link href="" className="icon-button" title="編集">
-              ✎
-            </Link>
-            <form>
-              <button type="submit" className="icon-button icon-button-danger" title="削除">
-                🗑
-              </button>
-            </form>
-          </div>
+      {posts.length === 0 ? (
+        <p className="empty">
+          まだ記事がありません。最初の記事を書いてみましょう。
+        </p>
+      ) : (
+        <div className="article-list">
+          {posts.map((post) => (
+            <div key={post.id} className="article-row">
+              <span
+                className={`status-badge ${post.published ? "status-published" : "status-draft"} `}
+              >
+                <span
+                  className={`status-dot ${post.published ? "status-dot-published" : "status-dot-draft"}`}
+                />
+                {post.published ? "公開" : "下書き"}
+              </span>
+              <Link href={`/posts/${post.id}`} className="article-title">
+                {post.title}
+              </Link>
+              <span className="article-date">
+                {post.updatedAt.toLocaleDateString("jp-JP")}
+              </span>
+              <div className="article-actions">
+                <Link
+                  href={`/posts/${post.id}/edit`}
+                  className="icon-button"
+                  title="編集"
+                >
+                  ✎
+                </Link>
+                <form>
+                  <button
+                    type="submit"
+                    className="icon-button icon-button-danger"
+                    title="削除"
+                  >
+                    🗑
+                  </button>
+                </form>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <div className="article-row">
-          <span className="status-badge status-published">
-            <span className="status-dot status-dot-published" />
-            公開
-          </span>
-          <Link href="" className="article-title">
-            Next.js App Routerの使い方
-          </Link>
-          <span className="article-date">2025年3月10日</span>
-          <div className="article-actions">
-            <Link href="" className="icon-button" title="編集">
-              ✎
-            </Link>
-            <form>
-              <button type="submit" className="icon-button icon-button-danger" title="削除">
-                🗑
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <div className="article-row">
-          <span className="status-badge status-draft">
-            <span className="status-dot status-dot-draft" />
-            下書き
-          </span>
-          <Link href="" className="article-title">
-            TypeScriptの型システム入門（下書き）
-          </Link>
-          <span className="article-date">2025年3月1日</span>
-          <div className="article-actions">
-            <Link href="" className="icon-button" title="編集">
-              ✎
-            </Link>
-            <form>
-              <button type="submit" className="icon-button icon-button-danger" title="削除">
-                🗑
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
