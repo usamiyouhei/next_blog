@@ -1,8 +1,8 @@
 import { Post } from "@/entities/post";
 import { getDataSource } from "./db";
-import { FindOptionsWhere } from "typeorm";
+import type { FindOptionsWhere } from "typeorm";
 import { cookies } from "next/headers";
-import { redirect } from "next/dist/server/api-utils";
+import { redirect } from "next/navigation";
 import { verifyToken } from "./jwt";
 
 export async function getPosts(options: {
