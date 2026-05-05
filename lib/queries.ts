@@ -37,3 +37,23 @@ export async function getPosts(options: {
 
   return { posts, total, page, totalPages: Math.ceil(total / limit) };
 }
+
+export async function getPostById(id: number) {
+  const ds = await getDataSource();
+  const postRepo = ds.getRepository(Post);
+  const post = await postRepo.findOne({
+    where: { id },
+    relations: ["user"],
+  });
+
+  if (!post) return null;
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+
+  if (!user || user.id !== post.userId) {
+    if (!post.published) return null;
+  }
+  return post;
+}
