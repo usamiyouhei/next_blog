@@ -1,40 +1,57 @@
 import Link from "next/link";
 import "./page.css";
+import { getPostById } from "@/lib/queries";
+import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { verifyToken } from "@/lib/jwt";
 
-export default function PostDetailPage() {
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+export default async function PostDetailPage({ params }: Props) {
+  const { id } = await params;
+  const post = await getPostById(parseInt(id));
+
+  if (!post) notFound();
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+  const isAuthor = user.id === post.id;
+
   return (
     <article className="article">
       <span className="tag">Article</span>
 
-      <h1 className="article-title">Reactの最新機能を試してみた</h1>
+      <h1 className="article-title">{post.title}</h1>
 
       <div className="article-meta">
-        <div className="author-avatar">T</div>
-        <span>testuser</span>
+        <div className="author-avatar">
+          {post.user.name.charAt(0).toUpperCase()}
+        </div>
+        <span>{post.user.name}</span>
         <span>·</span>
-        <span>2025年3月19日</span>
+        <span>{post.updatedAt.toLocaleDateString("jp-JP")}</span>
       </div>
 
       <div className="divider" />
 
       <div className="content">
-        <p>Reactの最新バージョンには多くの新機能が含まれています。この記事では実際に手を動かしながら、新しいAPIの使い方を解説します。</p>
-        <p>サーバーコンポーネントやサーバーアクションを活用することで、より少ないJavaScriptで高パフォーマンスなアプリケーションを構築できます。</p>
+        <p>{post.content}</p>
       </div>
 
-      {/* 記事の著者の場合は編集・削除ボタンを表示（コメントインで確認可能） */}
-      {/*
-      <div className="actions">
-        <Link href="" className="button-edit">
-          編集する
-        </Link>
-        <form>
-          <button type="submit" className="button-delete">
-            削除する
-          </button>
-        </form>
-      </div>
-      */}
+      {isAuthor && (
+        <div className="actions">
+          <Link href={`/posts/${post.id}/edit`} className="button-edit">
+            編集する
+          </Link>
+          <form>
+            <button type="submit" className="button-delete">
+              削除する
+            </button>
+          </form>
+        </div>
+      )}
 
       <Link href="/" className="back-link">
         ← 一覧に戻る
