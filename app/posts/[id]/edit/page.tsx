@@ -4,6 +4,7 @@ import { getPostById } from "@/lib/queries";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
+import { updatePost } from "@/lib/actions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -21,10 +22,15 @@ export default async function EditPostPage({ params }: Props) {
 
   if (!user || user.id !== post.userId) redirect("/dashboard");
 
+  const action = updatePost.bind(null, post.id);
   return (
     <div className="page">
       <h1 className="page-title">記事を編集</h1>
-      <PostForm />
+      <PostForm
+        action={action}
+        initialTitle={post.title}
+        initialContent={post.content}
+      />
     </div>
   );
 }

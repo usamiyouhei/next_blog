@@ -7,9 +7,15 @@ interface Props {
     state: { error: string } | null,
     formData: FormData,
   ) => Promise<{ error: string } | null>;
+  initialTitle?: string;
+  initialContent?: string;
 }
 
-export default function PostForm({ action }: Props) {
+export default function PostForm({
+  action,
+  initialTitle = "",
+  initialContent = "",
+}: Props) {
   const [state, formAction, isPending] = useActionState(action, null);
   return (
     <form className="post-form" action={formAction}>
@@ -21,6 +27,7 @@ export default function PostForm({ action }: Props) {
         placeholder="記事のタイトルを入力..."
         className="title-input"
         required
+        defaultValue={initialTitle}
       />
 
       <div className="editor-pane">
@@ -31,6 +38,7 @@ export default function PostForm({ action }: Props) {
             placeholder="Markdownで本文を書いてください..."
             className="content-textarea"
             required
+            defaultValue={initialContent}
           />
         </div>
         <div className="preview-panel">
