@@ -4,6 +4,8 @@ import { getPostById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
+import remarkGfm from "remark-gfm";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -17,7 +19,7 @@ export default async function PostDetailPage({ params }: Props) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
-  const isAuthor = user.id === post.id;
+  const isAuthor = user?.id === post.id;
 
   return (
     <article className="article">
@@ -37,7 +39,9 @@ export default async function PostDetailPage({ params }: Props) {
       <div className="divider" />
 
       <div className="content">
-        <p>{post.content}</p>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.content}
+        </ReactMarkdown>
       </div>
 
       {isAuthor && (

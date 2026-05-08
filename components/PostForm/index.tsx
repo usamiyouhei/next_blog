@@ -1,6 +1,8 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import "./index.css";
+import remarkGfm from "remark-gfm";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   action: (
@@ -17,6 +19,8 @@ export default function PostForm({
   initialContent = "",
 }: Props) {
   const [state, formAction, isPending] = useActionState(action, null);
+  const [content, setContent] = useState(initialContent);
+
   return (
     <form className="post-form" action={formAction}>
       {state?.error && <p className="form-error">{state.error}</p>}
@@ -38,17 +42,22 @@ export default function PostForm({
             placeholder="Markdownで本文を書いてください..."
             className="content-textarea"
             required
-            defaultValue={initialContent}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
         </div>
         <div className="preview-panel">
           <div className="panel-label">プレビュー</div>
           <div className="preview-content">
-            <p>Markdownプレビューがここに表示されます</p>
-            {/* 空の場合はこちら（コメントインで確認可能） */}
-            {/*
-            <p className="preview-placeholder">プレビューがここに表示されます</p>
-            */}
+            {content ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {content}
+              </ReactMarkdown>
+            ) : (
+              <p className="preview-placeholder">
+                プレビューがここに表示されます
+              </p>
+            )}
           </div>
         </div>
       </div>
