@@ -4,14 +4,22 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 import { redirect } from "next/navigation";
 import { getPosts } from "@/lib/queries";
+import { deletePost } from "@/lib/actions";
+import Pagination from "@/components/Pagination";
 
-export default async function DashboardPage() {
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: Props) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
   if (!user) redirect("/auth/signin");
+  const { page: pageStr } = await searchParams;
+  const page = parseInt(pageStr || "1");
+  const { posts, totalPages } = await getPosts({ isOwn: true, page });
 
-  const { posts } = await getPosts({ isOwn: true });
   return (
     <div className="page">
       <div className="dashboard-header">
@@ -51,7 +59,7 @@ export default async function DashboardPage() {
                 >
                   ✎
                 </Link>
-                <form>
+                <form action={deletePost.bind(null, post.id)}>
                   <button
                     type="submit"
                     className="icon-button icon-button-danger"
@@ -64,6 +72,13 @@ export default async function DashboardPage() {
             </div>
           ))}
         </div>
+      )}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          basePath="/dashboard"
+        />
       )}
     </div>
   );

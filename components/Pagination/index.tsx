@@ -4,15 +4,23 @@ import "./index.css";
 interface Props {
   currentPage: number;
   totalPages: number;
+  basePath?: string;
 }
 
-export default function Pagination({ currentPage, totalPages }: Props) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  basePath = "/",
+}: Props) {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <nav className="pagination">
       {currentPage > 1 ? (
-        <Link href={`/?page=${currentPage - 1}`} className="nav-button">
+        <Link
+          href={`${basePath}/?page=${currentPage - 1}`}
+          className="nav-button"
+        >
           ← Prev
         </Link>
       ) : (
@@ -21,14 +29,17 @@ export default function Pagination({ currentPage, totalPages }: Props) {
       {pages.map((page) => (
         <Link
           key={page}
-          href={`/?page=${page}`}
+          href={`${basePath}/?page=${page}`}
           className={`page-button ${page === currentPage ? "page-button-active" : ""}`}
         >
           {page}
         </Link>
       ))}
       {currentPage < totalPages ? (
-        <Link href={`/?page=${currentPage + 1}`} className="nav-button">
+        <Link
+          href={`${basePath}/?page=${currentPage + 1}`}
+          className="nav-button"
+        >
           Next →
         </Link>
       ) : (
