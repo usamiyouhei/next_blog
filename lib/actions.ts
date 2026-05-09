@@ -136,3 +136,22 @@ export async function updatePost(
 
   redirect("/dashboard");
 }
+
+export async function deletePost(postId: number) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
+
+  if (!user) redirect("/auth/signin");
+  const ds = await getDataSource();
+  const postRepo = ds.getRepository(Post);
+
+  const post = await postRepo.findOne({
+    where: { id: postId, userId: user.id },
+  });
+  if (!post) return;
+
+  await postRepo.delete({ id: postId });
+
+  redirect("/dashboard");
+}
