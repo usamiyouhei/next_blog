@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
+import { deletePost } from "@/lib/actions";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -49,7 +50,7 @@ export default async function PostDetailPage({ params }: Props) {
           <Link href={`/posts/${post.id}/edit`} className="button-edit">
             編集する
           </Link>
-          <form>
+          <form action={deletePost.bind(null, post.id)}>
             <button type="submit" className="button-delete">
               削除する
             </button>
