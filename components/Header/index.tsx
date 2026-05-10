@@ -2,6 +2,7 @@ import Link from "next/link";
 import "./index.css";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
+import { signout } from "@/lib/actions";
 
 export default async function Header() {
   const cookieStore = await cookies();
@@ -24,7 +25,7 @@ export default async function Header() {
               <div className="avatar">{user.name.charAt(0).toUpperCase()}</div>
               <div className="dropdown">
                 <span className="dropdownName">{user.name}</span>
-                <form>
+                <form action={signout}>
                   <button type="submit" className="signOutButton">
                     Sign out
                   </button>
