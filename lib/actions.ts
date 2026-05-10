@@ -78,6 +78,12 @@ export async function signin(
   redirect("/");
 }
 
+export async function signout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("token");
+  redirect("/");
+}
+
 export async function createPost(
   _prevState: { error: string } | null,
   formData: FormData,
